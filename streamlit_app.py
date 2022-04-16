@@ -2,10 +2,19 @@ from PIL import Image
 
 import streamlit as st
 import requests
+import json
 
 def load_image(image_file):
 	img = Image.open(image_file)
 	return img
+
+def validte_json_content(value: str, target:str):
+    try:
+        value = json.loads(value)
+    except:
+        st.error(f'check {target} value!')
+
+    return value
 
 st.title("AI service Laboratory")
 
@@ -24,11 +33,10 @@ with st.sidebar:
     )
 
 st.subheader(f"Service Type: {category}")
-request_body = st.text_area("request body(json format)")
 
 if "Template" in category:  # use user input
     request_host = st.text_input("request host")
-    request_port = st.number_input("request port")
+    request_port = st.number_input("request port", format='%d', step=1)
     request_header = st.text_area("request header(json format)")
 else:  # read config from yaml
     request_host = ""
@@ -46,12 +54,15 @@ if category == "Image Task Template" or category == "OCR":
         st.write(file_details)
         st.image(load_image(image_file), width=250)
 
-elif category == "Text Task Template":
-    st.text_area(label="text query")
+request_body = st.text_area("request body(json format)")
 
 if st.button("predict"):
-    response = requests.post(
-        f"{request_host}:{request_port}",
-        request_header=request_header,
-        data=request_body,
-    )
+    request_header = validte_json_content(request_header, 'request_header')
+    request_body = validte_json_content(request_body, 'request_body')
+
+    if request_header and request_body:
+        response = requests.post(
+            f"{request_host}:{request_port}",
+            request_header=request_header,
+            data=request_body,
+        )
