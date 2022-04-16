@@ -52,7 +52,20 @@ if category == "Image Task Template" or category == "OCR":
             "filesize": image_file.size,
         }
         st.write(file_details)
-        st.image(load_image(image_file), width=250)
+        loaded_image = load_image(image_file)
+
+        col1, col2, col3 = st.columns([1,1,1])
+        with col1:
+            if st.button('rotate 90'):
+                loaded_image = loaded_image.rotate(-90)
+        with col2:
+            if st.button('rotate 180'):
+                loaded_image = loaded_image.rotate(-180)
+        with col3:
+            if st.button('rotate 270'):
+                loaded_image = loaded_image.rotate(-270)
+        
+        st.image(loaded_image, width=640)
 
 request_body = st.text_area("request body(json format)")
 
