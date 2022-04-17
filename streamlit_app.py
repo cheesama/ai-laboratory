@@ -35,12 +35,10 @@ with st.sidebar:
 st.subheader(f"Service Type: {category}")
 
 if "Template" in category:  # use user input
-    request_host = st.text_input("request host")
-    request_port = st.number_input("request port", format='%d', step=1)
+    request_host = st.text_input("request host(include port)")
     request_header = st.text_area("request header(json format)")
 else:  # read config from yaml
     request_host = ""
-    request_port = 8080
     request_header = {}
 
 if category == "Image Task Template" or category == "OCR":
@@ -75,7 +73,10 @@ if st.button("predict"):
 
     if request_header and request_body:
         response = requests.post(
-            f"{request_host}:{request_port}",
-            request_header=request_header,
+            f"{request_host}",
+            headers=request_header,
             data=request_body,
         )
+
+    st.write('result: ')
+    st.write(json.loads(response.text))
